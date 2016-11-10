@@ -1,6 +1,6 @@
 # grunt-csproj-integrity
 
-> Grunt plugin of csproj-integrity
+> Grunt plugin of [csproj-integrity](https://github.com/mantovanig/csproj-integrity)
 
 ## Getting Started
 This plugin requires Grunt `~0.4.5`
