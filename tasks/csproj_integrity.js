@@ -22,7 +22,8 @@ module.exports = function(grunt) {
 
       var options = this.options({
         checkFiles: false,
-        checkIntegrity: false
+        checkIntegrity: false,
+        failOnError: false // Fail the task on error. Default: false
       });
 
   		this.files.forEach(function(file) {
@@ -34,18 +35,31 @@ module.exports = function(grunt) {
   			var files = file.src.map(function(f) { return path.join(file.cwd, f) })
   			grunt.log.debug('Checking: ' +  files.length + ' files.');
 
+        var checkFilesResult; //Store the checkFiles result
+
        Promise.resolve()
         .then(function () {
           if(options.checkFiles) {
               return checksolution.checkFiles(files);
           }
         })
-        .then(function () {
+        .then(function (result) {
+          checkFilesResult = result;
           if(options.checkIntegrity) {
               return checksolution.checkIntegrity(files);
           }
         })
-        .then(done);
+        .then((result) => {
+           if (options.failOnError) {
+               var hasErrors = false;
+               hasErrors |= (checkFilesResult && checkFilesResult.length > 0); //One or more files are not included in the solution
+               hasErrors |= (result && result.length > 0); //One or more included files does not exist
+               if (hasErrors) {													
+                   grunt.fail.fatal('grunt-csproj-integrity: failure');
+               }
+            }
+            done();
+        });
 
   		}) // end forEach
 
